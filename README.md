@@ -236,49 +236,33 @@ Add screenshots below after running the project.
 
 ### Screenshot 1: Home Page And Login
 
-`screenshots/01-home-login.png`
-
 ![Home page and login](screenshots/01-home-login.png)
 
 ### Screenshot 2: Product Listing
-
-`screenshots/02-product-listing.png`
 
 ![Product listing](screenshots/02-product-listing.png)
 
 ### Screenshot 3: Product Detail Cache Miss
 
-`screenshots/03-cache-miss.png`
-
 ![Product detail cache miss](screenshots/03-cache-miss.png)
 
 ### Screenshot 4: Product Detail Cache Hit
-
-`screenshots/04-cache-hit.png`
 
 ![Product detail cache hit](screenshots/04-cache-hit.png)
 
 ### Screenshot 5: Redis Cart
 
-`screenshots/05-cart.png`
-
 ![Redis cart](screenshots/05-cart.png)
 
 ### Screenshot 6: Successful Order Placement
-
-`screenshots/06-order-placement.png`
 
 ![Order placement](screenshots/06-order-placement.png)
 
 ### Screenshot 7: Trending Products And Recently Viewed
 
-`screenshots/07-realtime-features.png`
-
 ![Real-time Redis features](screenshots/07-realtime-features.png)
 
 ### Screenshot 8: Admin Analytics
-
-`screenshots/08-admin-analytics.png`
 
 ![Admin analytics](screenshots/08-admin-analytics.png)
 
