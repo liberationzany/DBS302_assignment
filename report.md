@@ -1,206 +1,519 @@
-# XYZ Shop: Production-Ready E-Commerce Data Layer
+# XYZ Shop E-Commerce Backend Data Layer
 
 ## Title Page
 
 Module: DBS302  
 Assignment: Designing a Production-Ready E-Commerce Backend with MongoDB and Redis  
-Project: XYZ Shop Data Layer  
-Deliverables: Source code, technical report, and demonstration
+Project Name: XYZ Shop Data Layer  
+Student Work: Backend source code, README, technical report, screenshots, and demo
 
 ## Abstract
 
-XYZ Shop uses MongoDB as the source-of-truth document database and Redis as an in-memory acceleration and real-time feature layer. MongoDB stores users, products, categories, inventory, orders, and reviews with indexes, aggregations, transactions, and a replica-set deployment. Redis serves hot product reads, sessions, carts, rate limits, recently viewed lists, sorted-set leaderboards, and HyperLogLog unique visitor estimates.
+For this assignment, I built the backend data layer for a simple e-commerce system called XYZ Shop. The main database is MongoDB, and Redis is used for fast temporary data such as product cache, user sessions, carts, rate limits, recently viewed products, trending products, and unique visitor counting.
 
-## System Architecture
+The aim of my project is to show how MongoDB and Redis can work together in an online shopping system. MongoDB stores the important long-term data, while Redis helps improve speed and supports real-time features.
+
+## System Overview
+
+The system has three main parts:
+
+- A Node.js and Express backend API
+- MongoDB for permanent e-commerce data
+- Redis for fast access and real-time features
+
+The frontend is a simple browser page served by the same Express app. It is used for demonstration purposes, such as login, product browsing, cart operations, order placement, and admin analytics.
+
+## System Architecture Diagram
 
 ```mermaid
 flowchart LR
-  Client[Client or Postman] --> API[Express API]
+  User[User Browser] --> API[Express Backend API]
   API --> Mongo[(MongoDB Replica Set)]
   API --> Redis[(Redis)]
-  Mongo --> M1[mongo1 primary]
-  Mongo --> M2[mongo2 secondary]
-  Mongo --> M3[mongo3 secondary]
-  Redis --> Cache[Product cache]
-  Redis --> Cart[Cart/session TTL]
-  Redis --> Realtime[Leaderboards/rate limits/HLL]
+  Mongo --> Users[Users]
+  Mongo --> Products[Products]
+  Mongo --> Orders[Orders]
+  Redis --> Cache[Product Cache]
+  Redis --> Cart[Cart and Sessions]
+  Redis --> RealTime[Trending, Rate Limits, Visitors]
 ```
 
-MongoDB is the durable system of record. Redis is deliberately treated as disposable acceleration except where persistence improves operational recovery for sessions and real-time counters.
+In this design, MongoDB is the main database. If Redis data is lost, the most important business data is still safe in MongoDB.
 
-## Technology Justification
+## Technology Used
 
-MongoDB fits the product catalogue because categories have different attribute shapes: laptops need RAM and storage, clothing needs fabric and size, and home goods need material or warranty data. Mongoose schemas keep core fields validated while `Product.attributes` remains flexible.
+I used the following technologies:
 
-Redis fits the high-throughput and real-time requirements because product detail cache reads, cart mutations, session TTLs, counters, lists, sorted sets, and HyperLogLog operations are low-latency atomic operations.
+- Node.js and Express for the backend API
+- MongoDB for document storage
+- Mongoose for MongoDB models
+- Redis for caching and fast temporary data
+- Docker Compose for running MongoDB and Redis locally
+- JWT for login tokens
+- bcrypt for password hashing
+- HTML, CSS, and JavaScript for the frontend demo
 
-## MongoDB Data Model
+## Why I Used MongoDB
 
-### users
+I used MongoDB because e-commerce products do not all have the same structure. For example:
 
-Stores authentication identity, roles, addresses, payment preferences, and wishlist references. Addresses and payment preferences are embedded because they are usually read with the user profile and bounded in size. Wishlist uses product references because product data changes independently.
+- A laptop may have RAM, storage, and processor details.
+- A clothing item may have fabric, size, and color.
+- A home product may have material and warranty details.
 
-### categories
+Using MongoDB makes this easier because product documents can store flexible attributes. At the same time, important fields like name, price, category, and variants are still clearly defined in the schema.
 
-Stores category hierarchy and attribute definitions. Parent category is referenced to support arbitrary tree depth without duplicating category documents.
+## Why I Used Redis
 
-### products
+I used Redis because some parts of an e-commerce website need to be very fast. Product details may be opened many times, especially during sales or promotions. Carts and sessions also need quick reads and writes.
 
-Stores seller reference, category reference, product details, flexible attributes, and embedded variants. Variants are embedded because they are small, tightly coupled to product display, and needed in product detail reads. Seller and category are referenced because they have independent lifecycles.
+Redis is used for:
 
-### inventories
+- Product detail cache
+- User sessions
+- Shopping carts
+- Rate limits
+- Trending products
+- Recently viewed products
+- Leaderboards
+- Unique visitor counting
 
-Stores stock per product, variant, and warehouse. Inventory is separate from product because stock changes frequently and must be updated transactionally during checkout without rewriting the full product document.
+## MongoDB Collections
 
-### orders
+I created six main MongoDB collections.
 
-Stores order header, user reference, embedded line item snapshots, totals, shipping address snapshot, and lifecycle history. Line items embed product name and price snapshots because orders must preserve the purchase facts even if a product changes later.
+### 1. users
 
-### reviews
+The `users` collection stores customer, seller, and administrator accounts.
 
-Stores product and user references with rating and body. Reviews are separate because they can grow without bound and can be moderated independently.
+It includes:
 
-## Indexing Strategy
+- Name
+- Email
+- Password hash
+- Roles
+- Addresses
+- Payment preferences
+- Wishlist product references
 
-Implemented indexes include:
+I embedded addresses and payment preferences because they are normally loaded with the user profile. I used references for wishlist products because product data changes separately.
 
-- `users.email` unique index for login and duplicate prevention.
-- `products.slug` unique index for stable catalogue lookup.
-- `products { category, status, basePrice }` compound index for category browsing and price sorting.
-- `products { name, description, tags }` text index for full-text search.
-- `orders { user, createdAt }` for order history.
-- `inventories { product, variantSku, warehouseCode }` unique index for stock updates.
+### 2. categories
 
-These indexes support the primary read and write paths without indexing every field. Additional indexes should be added from measured slow-query logs, not speculation.
+The `categories` collection stores product categories and sub-categories.
 
-## Aggregation Pipelines
+It includes:
 
-`monthlyRevenue()` groups valid orders by year and month, returning revenue and order count for reporting.
+- Name
+- Slug
+- Parent category
+- Attribute definitions
 
-`productPurchaseAnalysis()` unwinds order lines, groups purchased units and revenue by product, joins product names, sorts by demand, and returns the top products.
+I used a parent reference so that categories can support sub-categories.
 
-`lowStock()` compares `quantityOnHand` against `reorderLevel` and joins product names for alerting.
+### 3. products
 
-## Transactional Workflow
+The `products` collection stores product catalogue data.
 
-Order placement uses a MongoDB session and `withTransaction()`:
+It includes:
 
-1. Load each active product and selected variant.
-2. Atomically decrement inventory using `findOneAndUpdate()` with `quantityOnHand >= requested quantity`.
-3. Create the order document with line-item snapshots and totals.
-4. After commit, clear the Redis cart and update buyer/seller leaderboards.
+- Seller reference
+- Category reference
+- Name
+- Description
+- Tags
+- Brand
+- Price
+- Flexible attributes
+- Variants
+- Rating summary
 
-The stock decrement and order creation are atomic. Redis updates happen after commit because Redis is not the source of truth.
+I embedded product variants because variants are closely related to the product. For example, size and color options are usually shown together with the product details.
 
-## Redis Data Types
+### 4. inventories
 
-Strings:
+The `inventories` collection stores stock data.
 
-- `cache:product:{id}` stores JSON product detail with TTL.
-- `session:{id}` stores session data with TTL.
-- `rate:{name}:{principal}` stores request counters with expiry.
+It includes:
 
-Hashes:
+- Product reference
+- Variant SKU
+- Warehouse code
+- Quantity on hand
+- Reserved quantity
+- Reorder level
 
-- `cart:{ownerType}:{ownerId}` stores product IDs as fields and cart items as JSON values.
+I kept inventory separate from products because stock changes often. This also makes it safer to update stock during checkout.
 
-Lists:
+### 5. orders
 
-- `recently_viewed:{userId}` stores the last 10 product IDs viewed by a user.
+The `orders` collection stores customer orders.
 
-Sorted Sets:
+It includes:
 
-- `leaderboard:trending_products` increments product views.
-- `leaderboard:top_sellers` increments seller activity.
-- `leaderboard:top_buyers` increments buyer spend.
+- Order number
+- User reference
+- Order lines
+- Status
+- Status history
+- Subtotal, tax, and total
+- Shipping address snapshot
+- Payment status
 
-HyperLogLog:
+I stored product name and price snapshots inside the order lines. This is important because an old order should still show the price paid at that time, even if the product price changes later.
 
-- `hll:unique_visitors:{yyyy-mm-dd}` estimates daily unique visitors.
+### 6. reviews
 
-## Cache Strategy and Coherence
+The `reviews` collection stores product reviews.
 
-Product detail uses cache-aside:
+It includes:
 
-1. API checks Redis.
-2. On miss, API loads MongoDB.
-3. API writes Redis with TTL plus small jitter.
-4. Product updates and archive operations delete the product cache key.
+- Product reference
+- User reference
+- Rating
+- Title
+- Review body
+- Status
 
-This strategy keeps MongoDB authoritative and makes stale reads bounded by TTL. Cache invalidation is explicit for product mutations. Stampede protection uses a short Redis lock key so only one worker should populate the cache during a miss window.
+I kept reviews separate from products because a product can have many reviews.
 
-## Performance Plan
+## MongoDB Indexes
 
-Hot paths served by Redis:
+Indexes help MongoDB find data faster. I added indexes for the main search and lookup operations.
 
-- Product detail cache.
-- Cart hash reads and writes.
-- Session lookup.
-- Login and checkout rate limits.
-- Trending leaderboard.
+Important indexes include:
 
-Cache-hit ratio should be measured from `X-Cache` headers or API logs: `hits / (hits + misses)`. For a flash sale, expected behavior is first request miss and repeated product-detail requests hit Redis until TTL expiry or invalidation.
+- Unique user email index for login
+- Unique product slug index
+- Product category, status, and price index for filtering and sorting
+- Product text index on name, description, and tags for search
+- Order user and created date index for order history
+- Inventory product, SKU, and warehouse index for stock updates
+- Review product and user index to avoid duplicate reviews
 
-## Scalability and Sharding
+These indexes are useful because users often search products, filter products, login by email, and view order history.
 
-Replica set is configured locally with three MongoDB nodes. For sharding:
+## MongoDB Aggregation Reports
 
-- `products`: shard by hashed `_id` or hashed `seller` for write distribution. If category browsing dominates, a compound shard key such as `{ category: 1, _id: "hashed" }` can keep category access targeted while avoiding a single hot category chunk.
-- `orders`: shard by `{ user: "hashed" }` for user order-history distribution. For time-series reporting at very large scale, copy order events into an analytics store or shard analytical collections by month.
-- `inventories`: shard by hashed `product` to distribute high-volume stock documents.
+I implemented aggregation reports for admin analytics.
 
-Shard keys avoid monotonically increasing values such as `createdAt` alone because those can create hot chunks during writes.
+### Monthly Revenue
+
+This report groups orders by month and calculates:
+
+- Total revenue
+- Number of orders
+
+### Product Purchase Analysis
+
+This report checks which products were purchased the most. It helps compare product sales performance.
+
+### Low Stock Report
+
+This report finds inventory items where the quantity is at or below the reorder level. This helps sellers or admins know when stock needs to be refilled.
+
+## Order Transaction
+
+The most important workflow is placing an order. This must be handled carefully because the system should not create an order if there is not enough stock.
+
+I used a MongoDB transaction for order placement.
+
+The order process is:
+
+1. Read the cart from Redis.
+2. Check each product and variant in MongoDB.
+3. Decrease stock only if enough quantity is available.
+4. Create the order.
+5. Commit the transaction.
+6. After the transaction succeeds, clear the Redis cart.
+7. Update Redis leaderboards.
+
+This makes the order process safer because stock update and order creation happen together.
+
+## Redis Data Usage
+
+I used more than four Redis data types.
+
+### Strings
+
+Used for:
+
+- Product cache
+- Sessions
+- Rate limit counters
+
+Example keys:
+
+```text
+cache:product:{id}
+session:{id}
+rate:{name}:{principal}
+```
+
+### Hashes
+
+Used for shopping carts.
+
+Example key:
+
+```text
+cart:{ownerType}:{ownerId}
+```
+
+Each cart item is stored under the product ID.
+
+### Lists
+
+Used for recently viewed products.
+
+Example key:
+
+```text
+recently_viewed:{userId}
+```
+
+The newest product is added to the front of the list, and the list is limited to the latest 10 products.
+
+### Sorted Sets
+
+Used for leaderboards and trending products.
+
+Example keys:
+
+```text
+leaderboard:trending_products
+leaderboard:top_sellers
+leaderboard:top_buyers
+```
+
+Sorted sets are useful because Redis can quickly return the top products, sellers, or buyers.
+
+### HyperLogLog
+
+Used for estimating unique visitors.
+
+Example key:
+
+```text
+hll:unique_visitors:{yyyy-mm-dd}
+```
+
+This is useful because it can estimate unique users without storing every visitor ID in full.
+
+## Product Cache Strategy
+
+I used a cache-aside approach for product details.
+
+The flow is:
+
+1. The API checks Redis first.
+2. If the product is found in Redis, the API returns it quickly.
+3. If it is not found, the API loads it from MongoDB.
+4. The API stores the product in Redis with an expiry time.
+5. When the product is updated or archived, the cache is deleted.
+
+The frontend shows the cache result using:
+
+```text
+Cache: miss
+Cache: hit
+```
+
+This helps demonstrate that Redis is being used.
+
+## Cache Stampede Protection
+
+A cache stampede can happen when many users request the same product at the same time and the cache is empty. To reduce this problem, I added a short Redis lock key when loading a product from MongoDB.
+
+This means only one request should refill the cache at a time.
+
+## Performance Testing Plan
+
+The project shows cache behaviour through the `X-Cache` response header.
+
+During testing:
+
+| Request | Expected Result |
+| --- | --- |
+| First product detail request | `X-Cache: miss` |
+| Second product detail request for the same product | `X-Cache: hit` |
+
+The cache-hit ratio can be calculated as:
+
+```text
+cache hits / total product detail requests
+```
+
+For example, if 8 out of 10 product detail requests are served from Redis, the cache-hit ratio is:
+
+```text
+8 / 10 = 80%
+```
+
+## MongoDB Replica Set
+
+I configured MongoDB with three Docker containers:
+
+- `mongo1`
+- `mongo2`
+- `mongo3`
+
+These containers are started as a replica set named `rs0`.
+
+A replica set is useful because if one database node fails, another node can still keep the database available.
+
+## Sharding Plan
+
+For a larger production system, I would shard the main collections.
+
+My suggested shard keys are:
+
+| Collection | Suggested Shard Key | Reason |
+| --- | --- | --- |
+| products | `{ category: 1, _id: "hashed" }` | Supports category browsing and spreads products across shards |
+| orders | `{ user: "hashed" }` | Spreads user orders evenly |
+| inventories | `{ product: "hashed" }` | Spreads stock records by product |
+
+I would avoid using only `createdAt` as a shard key because new records would all go to the same area of the database.
+
+## Redis Persistence And Eviction
+
+Redis is configured with:
+
+- AOF enabled
+- `appendfsync everysec`
+- RDB snapshots
+- `allkeys-lru` eviction policy
+
+This means Redis saves data regularly, but MongoDB is still the main permanent database. If Redis loses some temporary data, the core order and product data is still stored in MongoDB.
 
 ## High Availability
 
-MongoDB runs as a 3-node replica set. Writes should use majority write concern for checkout-critical data. Reads for critical workflows should use primary or majority read concern. Non-critical catalogue reads may use secondary reads if latency and freshness trade-offs are acceptable.
+For MongoDB, I used a three-node replica set in Docker.
 
-Redis HA is documented as Sentinel or Cluster in production. Sentinel is appropriate for a single primary with replicas and failover. Cluster is better once memory or throughput requires partitioning keys across nodes.
+For Redis, the local project uses one Redis container. In a real production system, I would use Redis Sentinel or Redis Cluster:
 
-## Consistency and CAP Trade-Offs
+- Redis Sentinel is useful for failover.
+- Redis Cluster is useful when the Redis data needs to be split across multiple servers.
 
-Checkout favors consistency over availability. If the MongoDB primary cannot commit the inventory decrement and order creation transaction, the order should fail rather than oversell stock.
+## Consistency And CAP Discussion
 
-Catalogue browsing favors availability and latency. Redis may serve slightly stale product detail within TTL bounds. Product updates invalidate cache keys to reduce stale windows.
+For checkout, I chose stronger consistency. This means the system should avoid selling stock that does not exist. If the database cannot safely update stock and create the order, the checkout should fail.
 
-Leaderboards and unique visitor estimates are eventually consistent analytical features. They do not block checkout or user identity operations.
+For product browsing, I allowed faster reads through Redis. This means users may briefly see slightly older product data, but the data will refresh after cache expiry or cache deletion.
 
-## Durability
+In simple terms:
 
-MongoDB is durable through replica-set replication and journaling. Redis uses AOF `everysec` plus RDB snapshots. This hybrid gives acceptable recovery for sessions and counters while preserving Redis performance. Losing the final second of Redis writes is acceptable because MongoDB remains authoritative for orders and inventory.
+- Checkout should be correct first.
+- Product browsing should be fast.
 
 ## Security
 
-Passwords are hashed with bcrypt. Authentication uses signed JWTs. Role checks protect seller and administrator endpoints. Production deployment should also enable MongoDB authentication, Redis ACLs, TLS between services, secret management through a vault or platform secret store, least-privilege database users, and request logging without sensitive payloads.
+Implemented security features:
+
+- Passwords are hashed with bcrypt.
+- Login uses JWT tokens.
+- Seller and admin routes are protected by roles.
+- Helmet is used for basic HTTP security headers.
+- `.env` is ignored by Git.
+
+Recommended production improvements:
+
+- Enable MongoDB username and password authentication.
+- Enable Redis password or ACLs.
+- Use TLS for database connections.
+- Store secrets in a secure secret manager.
+- Avoid logging passwords, tokens, or payment details.
 
 ## Observability
 
-Application logs use `morgan` and structured error responses. MongoDB production settings should enable profiler or slow-query logging for queries above a chosen threshold. Redis observability is exposed through `GET /api/analytics/redis-info` for demonstration and should be integrated with Prometheus, Grafana, or cloud metrics in production.
+Implemented:
 
-Important metrics:
+- HTTP request logs using `morgan`
+- Redis INFO endpoint for admin demonstration
+- Error responses in JSON format
 
-- MongoDB operation latency, transaction aborts, lock percentage, replication lag.
-- Redis memory usage, evictions, keyspace hits/misses, connected clients, rejected connections.
-- API checkout latency, cache-hit ratio, rate-limit rejections, order failure causes.
+Recommended production monitoring:
 
-## Demonstration Script
+- MongoDB slow query logs
+- MongoDB replication lag monitoring
+- Redis memory and cache-hit monitoring
+- API response time monitoring
+- Failed checkout monitoring
 
-1. Start MongoDB replica set and Redis.
-2. Run `npm run seed`.
-3. Login as `customer1@xyzshop.test`.
-4. Fetch product list and choose a product ID.
-5. Fetch product detail twice and show `X-Cache` changing from `miss` to `hit`.
-6. Add item to cart.
-7. Place order and show inventory is decremented transactionally.
-8. Show trending products and administrator analytics.
-9. Show Redis INFO and unique visitor estimate.
+## Frontend Demonstration
 
-## Citations
+I created a simple frontend for the demo. It supports:
 
-- MongoDB Manual: https://www.mongodb.com/docs/
+- Login
+- Product browsing
+- Product detail view
+- Cache miss and cache hit display
+- Cart operations
+- Order placement
+- Trending products
+- Recently viewed products
+- Admin analytics
+
+The frontend is available at:
+
+```text
+http://localhost:3000
+```
+
+## Screenshots
+
+Screenshots are included in the `screenshots/` folder:
+
+- `01-home-login.png`
+- `02-product-listing.png`
+- `03-cache-miss.png`
+- `04-cache-hit.png`
+- `05-cart.png`
+- `06-order-placement.png`
+- `07-realtime-features.png`
+- `08-admin-analytics.png`
+
+## Demonstration Steps
+
+For my demonstration, I use the following flow:
+
+1. Start Docker Desktop.
+2. Run the MongoDB and Redis containers.
+3. Seed the database.
+4. Start the API and frontend.
+5. Login as a customer.
+6. Browse products.
+7. Open one product twice to show cache miss and cache hit.
+8. Add a product to the cart.
+9. Place an order.
+10. Show trending and recently viewed products.
+11. Login as admin.
+12. Show monthly revenue and low-stock analytics.
+
+## Limitations
+
+The project covers the main data-layer requirements, but there are still areas that could be improved:
+
+- Redis Sentinel or Redis Cluster is explained but not fully implemented in Docker.
+- MongoDB and Redis authentication are recommended but not enabled in the local Docker setup.
+- Category CRUD routes can be expanded.
+- Review routes can be expanded.
+- Profile and wishlist routes can be expanded.
+- A larger benchmark could be added for cache-hit ratio and response time.
+
+## Conclusion
+
+This project demonstrates how MongoDB and Redis can be used together for an e-commerce backend. MongoDB stores the main business data, such as products, users, inventory, and orders. Redis improves speed and supports real-time features like carts, sessions, trending products, rate limits, and unique visitor counts.
+
+The most important part of the project is the order workflow, where MongoDB transactions are used to reduce the risk of incorrect stock updates. Overall, this project shows a practical data-layer design for an e-commerce system.
+
+## References
+
+- MongoDB Documentation: https://www.mongodb.com/docs/
 - Redis Documentation: https://redis.io/docs/latest/
 - Mongoose Documentation: https://mongoosejs.com/docs/
 - Express Documentation: https://expressjs.com/
-- Chodorow, K. MongoDB: The Definitive Guide.
-- Carlson, J. Redis in Action.
-- Sadalage, P. J. and Fowler, M. NoSQL Distilled.
+- Kristina Chodorow, MongoDB: The Definitive Guide
+- Josiah L. Carlson, Redis in Action
+- Pramod J. Sadalage and Martin Fowler, NoSQL Distilled

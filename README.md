@@ -683,7 +683,7 @@ These items are documented or partially implemented but can be improved further:
 
 - Redis Sentinel/Cluster is documented but not implemented in Docker Compose.
 - MongoDB authentication and TLS are recommended but not enabled in local Docker.
-- Screenshots need to be captured and added under `screenshots/`.
+- Screenshots have been captured under `screenshots/`.
 - Real measured cache-hit ratio should be recorded after running the demo.
 - Category CRUD routes, review routes, and profile update routes can be expanded if more completeness is required.
 
