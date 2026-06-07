@@ -84,10 +84,11 @@ services:
       REDIS_URL: redis://redis:6379
     volumes:
       - ./:/app
-      - /app/node_modules
+      - node-modules-data:/app/node_modules
 
 volumes:
   mongo1-data:
   mongo2-data:
   mongo3-data:
   redis-data:
+  node-modules-data:
