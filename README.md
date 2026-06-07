@@ -667,6 +667,12 @@ Run smoke test:
 npm run test:smoke
 ```
 
+Run API smoke test after Docker services, seed data, and API are running:
+
+```bash
+npm run test:api
+```
+
 Run JavaScript syntax checks:
 
 ```bash
