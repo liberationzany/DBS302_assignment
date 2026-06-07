@@ -5,6 +5,8 @@
 Module: DBS302  
 Assignment: Designing a Production-Ready E-Commerce Backend with MongoDB and Redis  
 Project Name: XYZ Shop Data Layer  
+Student Name: Sonam Tenzin  
+Student Number: 0223030  
 Student Work: Backend source code, README, technical report, screenshots, and demo
 
 ## Abstract

@@ -2,6 +2,9 @@
 
 DBS302 assignment project for a production-ready e-commerce backend using MongoDB as the primary document database and Redis as the in-memory data layer. The project includes an Express API, MongoDB schemas and indexes, Redis caching and real-time features, Docker Compose infrastructure, seed data, a simple frontend demo, and a technical report.
 
+Student: Sonam Tenzin  
+Student Number: 0223030
+
 ## Project Purpose
 
 XYZ Shop is an e-commerce platform migrating from a relational database to a polyglot persistence design. MongoDB stores durable business data such as users, products, inventory, orders, categories, and reviews. Redis supports hot-read performance and real-time workflows such as product caching, carts, sessions, rate limits, recently viewed products, leaderboards, and unique visitor estimates.
