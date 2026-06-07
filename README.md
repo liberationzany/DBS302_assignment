@@ -284,8 +284,6 @@ Add screenshots below after running the project.
 
 ### Optional Database Evidence Screenshots
 
-These screenshots are useful for showing the database layer directly.
-
 MongoDB viewer:
 
 ```text
