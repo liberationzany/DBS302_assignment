@@ -474,15 +474,10 @@ Screenshots are included in the `screenshots/` folder:
 - `07-realtime-features.png`
 - `08-admin-analytics.png`
 
-Extra database evidence screenshots can also be added:
+Extra database evidence screenshots are also included:
 
-- `09-mongodb-users.png`
-- `10-mongodb-categories.png`
-- `11-mongodb-products.png`
-- `12-mongodb-inventories.png`
-- `13-mongodb-orders.png`
-- `14-mongodb-reviews.png`
-- `15-redis-keys.png`
+- `mongo-collections.png`, showing the six MongoDB collections
+- `redis-keys.png`, showing Redis keys for cache, sessions, rate limits, leaderboards, recently viewed products, and unique visitors
 
 ## Demonstration Steps
 

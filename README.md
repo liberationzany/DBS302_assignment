@@ -298,16 +298,11 @@ Redis viewer:
 http://localhost:8082
 ```
 
-Suggested files:
+Database evidence files:
 
 ```text
-screenshots/09-mongodb-users.png
-screenshots/10-mongodb-categories.png
-screenshots/11-mongodb-products.png
-screenshots/12-mongodb-inventories.png
-screenshots/13-mongodb-orders.png
-screenshots/14-mongodb-reviews.png
-screenshots/15-redis-keys.png
+screenshots/mongo-collections.png
+screenshots/redis-keys.png
 ```
 
 ## API Documentation
