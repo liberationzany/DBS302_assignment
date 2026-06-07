@@ -478,6 +478,7 @@ Extra database evidence screenshots are also included:
 
 - `mongo-collections.png`, showing the six MongoDB collections
 - `redis-keys.png`, showing Redis keys for cache, sessions, rate limits, leaderboards, recently viewed products, and unique visitors
+- `smoke-tests.png`, showing the file smoke test and API smoke test passing
 
 ## Demonstration Steps
 

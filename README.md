@@ -305,6 +305,12 @@ screenshots/mongo-collections.png
 screenshots/redis-keys.png
 ```
 
+Smoke test evidence file:
+
+```text
+screenshots/smoke-tests.png
+```
+
 ## API Documentation
 
 ### Authentication
@@ -670,6 +676,13 @@ npm run test:smoke
 Run API smoke test after Docker services, seed data, and API are running:
 
 ```bash
+npm run test:api
+```
+
+For screenshot evidence, run both smoke tests in the terminal and capture the output:
+
+```bash
+npm run test:smoke
 npm run test:api
 ```
 
