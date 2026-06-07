@@ -760,7 +760,7 @@ docker compose config
 
 ## Demo Script
 
-Use this for the 10-15 minute demonstration.
+Use [docs/demo-script.md](docs/demo-script.md) for the 10-15 minute demonstration.
 
 1. Start Docker Desktop.
 2. Run `docker compose up -d mongo1 mongo2 mongo3 mongo-init redis`.
