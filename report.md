@@ -474,6 +474,16 @@ Screenshots are included in the `screenshots/` folder:
 - `07-realtime-features.png`
 - `08-admin-analytics.png`
 
+Extra database evidence screenshots can also be added:
+
+- `09-mongodb-users.png`
+- `10-mongodb-categories.png`
+- `11-mongodb-products.png`
+- `12-mongodb-inventories.png`
+- `13-mongodb-orders.png`
+- `14-mongodb-reviews.png`
+- `15-redis-keys.png`
+
 ## Demonstration Steps
 
 For my demonstration, I use the following flow:
