@@ -40,6 +40,16 @@ async function main() {
 
   const customerToken = await login("customer1@xyzshop.test");
   const adminToken = await login("admin@xyzshop.test");
+  const smokeEmail = `api-smoke-${Date.now()}@xyzshop.test`;
+  const smokeUser = await request("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "API Smoke User",
+      email: smokeEmail,
+      password: "Password123!"
+    })
+  });
+  const smokeToken = smokeUser.body.token;
 
   const productsResult = await request("/api/products?limit=5");
   const products = productsResult.body.products || [];
@@ -79,7 +89,65 @@ async function main() {
     headers: { Authorization: `Bearer ${adminToken}` }
   });
 
-  console.log("API smoke test passed: health, auth, products, cache, Redis features, and analytics are reachable.");
+  const categorySlug = `api-smoke-${Date.now()}`;
+  const createdCategory = await request("/api/categories", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({
+      name: "API Smoke Category",
+      slug: categorySlug,
+      attributeDefinitions: [{ key: "demo", label: "Demo", type: "string" }]
+    })
+  });
+  await request(`/api/categories/${createdCategory.body._id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({ name: "API Smoke Category Updated" })
+  });
+  await request(`/api/categories/${createdCategory.body._id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
+
+  await request("/api/users/me", {
+    headers: { Authorization: `Bearer ${smokeToken}` }
+  });
+  await request("/api/users/me", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${smokeToken}` },
+    body: JSON.stringify({ name: "API Smoke User Updated" })
+  });
+  await request(`/api/users/me/wishlist/${productId}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${smokeToken}` }
+  });
+  await request(`/api/users/me/wishlist/${productId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${smokeToken}` }
+  });
+
+  const createdReview = await request(`/api/products/${productId}/reviews`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${smokeToken}` },
+    body: JSON.stringify({
+      rating: 5,
+      title: "Smoke test review",
+      body: "Created by automated smoke test."
+    })
+  });
+  await request(`/api/reviews/${createdReview.body._id}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${smokeToken}` },
+    body: JSON.stringify({ rating: 4 })
+  });
+  await request(`/api/reviews/${createdReview.body._id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${smokeToken}` }
+  });
+
+  console.log(
+    "API smoke test passed: health, auth, products, categories, profile, wishlist, reviews, Redis features, and analytics are reachable."
+  );
 }
 
 main().catch((err) => {

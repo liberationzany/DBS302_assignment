@@ -5,6 +5,7 @@ module.exports = {
   port: Number(process.env.PORT || 3000),
   mongoUri: process.env.MONGODB_URI || "mongodb://localhost:27017/xyz_shop",
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
+  redisPassword: process.env.REDIS_PASSWORD || "",
   jwtSecret: process.env.JWT_SECRET || "development-secret-change-me",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
   bcryptRounds: Number(process.env.BCRYPT_ROUNDS || 10),

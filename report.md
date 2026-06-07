@@ -415,12 +415,13 @@ Implemented security features:
 - Login uses JWT tokens.
 - Seller and admin routes are protected by roles.
 - Helmet is used for basic HTTP security headers.
+- Redis is configured with password support in Docker Compose.
 - `.env` is ignored by Git.
 
 Recommended production improvements:
 
 - Enable MongoDB username and password authentication.
-- Enable Redis password or ACLs.
+- Use Redis ACLs for more detailed Redis permissions.
 - Use TLS for database connections.
 - Store secrets in a secure secret manager.
 - Avoid logging passwords, tokens, or payment details.
@@ -502,10 +503,8 @@ For my demonstration, I use the following flow:
 The project covers the main data-layer requirements, but there are still areas that could be improved:
 
 - Redis Sentinel or Redis Cluster is explained but not fully implemented in Docker.
-- MongoDB and Redis authentication are recommended but not enabled in the local Docker setup.
-- Category CRUD routes can be expanded.
-- Review routes can be expanded.
-- Profile and wishlist routes can be expanded.
+- MongoDB authentication and TLS are recommended but not enabled in the local Docker setup.
+- Redis password authentication is enabled, but Redis ACLs and TLS can be improved further for production.
 - A larger benchmark could be added for cache-hit ratio and response time.
 
 ## Conclusion

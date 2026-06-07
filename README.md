@@ -384,6 +384,83 @@ GET /api/products/recently-viewed
 Authorization: Bearer <token>
 ```
 
+### Categories
+
+List categories:
+
+```http
+GET /api/categories
+```
+
+Create category:
+
+```http
+POST /api/categories
+Authorization: Bearer <admin-token>
+```
+
+Update category:
+
+```http
+PATCH /api/categories/:id
+Authorization: Bearer <admin-token>
+```
+
+Delete category:
+
+```http
+DELETE /api/categories/:id
+Authorization: Bearer <admin-token>
+```
+
+### Profile And Wishlist
+
+View profile:
+
+```http
+GET /api/users/me
+Authorization: Bearer <token>
+```
+
+Update profile:
+
+```http
+PATCH /api/users/me
+Authorization: Bearer <token>
+```
+
+Manage wishlist:
+
+```http
+GET /api/users/me/wishlist
+PUT /api/users/me/wishlist/:productId
+DELETE /api/users/me/wishlist/:productId
+Authorization: Bearer <token>
+```
+
+### Reviews
+
+List product reviews:
+
+```http
+GET /api/products/:productId/reviews
+```
+
+Create product review:
+
+```http
+POST /api/products/:productId/reviews
+Authorization: Bearer <token>
+```
+
+Update or delete review:
+
+```http
+PATCH /api/reviews/:id
+DELETE /api/reviews/:id
+Authorization: Bearer <review-owner-or-admin-token>
+```
+
 ### Cart
 
 Get cart:
@@ -619,6 +696,7 @@ Implemented:
 - JWT authentication
 - Role-based access control
 - Helmet HTTP security middleware
+- Redis password support in Docker Compose
 - `.env` ignored from Git
 
 Production recommendations:
@@ -626,7 +704,7 @@ Production recommendations:
 - Enable MongoDB authentication
 - Use least-privilege MongoDB users
 - Enable TLS for MongoDB and Redis
-- Use Redis ACLs or password authentication
+- Use Redis ACLs for per-application permissions
 - Store secrets in a secure secret manager
 - Avoid logging passwords, tokens, or payment details
 

@@ -54,14 +54,14 @@ services:
 
   redis:
     image: redis:7
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD:-local-redis-password}"]
     ports:
       - "6379:6379"
     volumes:
       - ./docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD:-local-redis-password}\" ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -85,7 +85,7 @@ services:
     ports:
       - "8082:8081"
     environment:
-      REDIS_HOSTS: local:redis:6379
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-local-redis-password}
 
   api:
     image: node:20
@@ -103,6 +103,7 @@ services:
     environment:
       MONGODB_URI: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/xyz_shop?replicaSet=rs0
       REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-local-redis-password}
     volumes:
       - ./:/app
       - node-modules-data:/app/node_modules
