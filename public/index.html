@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>XYZ Shop Admin Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>XYZ Shop</h1>
+        <p>MongoDB + Redis data-layer demo</p>
+      </div>
+      <div class="session">
+        <span id="sessionState">Signed out</span>
+        <button id="logoutBtn" class="ghost" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel auth-panel">
+        <div class="panel-head">
+          <h2>Login</h2>
+        </div>
+        <form id="loginForm" class="form-grid">
+          <label>
+            Email
+            <input id="email" name="email" type="email" value="customer1@xyzshop.test" required />
+          </label>
+          <label>
+            Password
+            <input id="password" name="password" type="password" value="Password123!" required />
+          </label>
+          <button type="submit">Sign in</button>
+        </form>
+        <div class="quick-logins">
+          <button type="button" data-login="customer1@xyzshop.test">Customer</button>
+          <button type="button" data-login="admin@xyzshop.test">Admin</button>
+          <button type="button" data-login="seller@xyzshop.test">Seller</button>
+        </div>
+      </section>
+
+      <section class="panel products-panel">
+        <div class="panel-head">
+          <h2>Products</h2>
+          <form id="searchForm" class="search">
+            <input id="searchText" type="search" placeholder="Search products" />
+            <select id="category">
+              <option value="">All categories</option>
+              <option value="laptops">Laptops</option>
+              <option value="clothing">Clothing</option>
+              <option value="home">Home</option>
+            </select>
+            <button type="submit">Search</button>
+          </form>
+        </div>
+        <div id="products" class="product-grid"></div>
+      </section>
+
+      <aside class="side">
+        <section class="panel detail-panel">
+          <div class="panel-head">
+            <h2>Product Detail</h2>
+            <span id="cacheBadge" class="badge">Cache: none</span>
+          </div>
+          <div id="productDetail" class="empty">Select a product.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Cart</h2>
+            <button id="refreshCart" class="ghost" type="button">Refresh</button>
+          </div>
+          <div id="cart" class="cart-list empty">Cart is empty.</div>
+          <button id="checkoutBtn" type="button">Place order</button>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Real Time</h2>
+            <button id="refreshRealtime" class="ghost" type="button">Refresh</button>
+          </div>
+          <div class="split">
+            <div>
+              <h3>Trending</h3>
+              <ol id="trending" class="ranked"></ol>
+            </div>
+            <div>
+              <h3>Recently Viewed</h3>
+              <ol id="recentlyViewed" class="ranked"></ol>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="panel analytics-panel">
+        <div class="panel-head">
+          <h2>Admin Analytics</h2>
+          <button id="loadAnalytics" type="button">Load analytics</button>
+        </div>
+        <div class="analytics-grid">
+          <div>
+            <h3>Monthly Revenue</h3>
+            <pre id="monthlyRevenue">Admin login required.</pre>
+          </div>
+          <div>
+            <h3>Low Stock</h3>
+            <pre id="lowStock">Admin login required.</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
