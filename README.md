@@ -114,7 +114,7 @@ The focus of this project is the data layer, not advanced UI design.
 
 ## Environment Setup
 
-Create a local `.env` file from the example:
+Local `.env` file:
 
 ```bash
 cp .env.example .env
@@ -138,31 +138,31 @@ REDIS_URL=redis://redis:6379
 
 ### Option 1: Run Databases In Docker And API Locally
 
-Start MongoDB replica set and Redis:
+MongoDB replica set and Redis:
 
 ```bash
 docker compose up -d mongo1 mongo2 mongo3 mongo-init redis
 ```
 
-Install dependencies:
+Dependencies:
 
 ```bash
 npm install
 ```
 
-Seed the database:
+Database seed:
 
 ```bash
 npm run seed
 ```
 
-Start the API and frontend:
+API and frontend:
 
 ```bash
 npm run dev
 ```
 
-Open:
+Frontend URL:
 
 ```text
 http://localhost:3000
@@ -174,7 +174,7 @@ http://localhost:3000
 docker compose up api
 ```
 
-Then open:
+Frontend URL:
 
 ```text
 http://localhost:3000
@@ -230,9 +230,7 @@ Available frontend actions:
 - View recently viewed products
 - Load admin analytics
 
-## Screenshot Placeholders
-
-Add screenshots below after running the project.
+## Screenshots
 
 ### Screenshot 1: Home Page And Login
 
@@ -266,7 +264,7 @@ Add screenshots below after running the project.
 
 ![Admin analytics](screenshots/08-admin-analytics.png)
 
-### Optional Database Evidence Screenshots
+### Database Evidence Screenshots
 
 MongoDB viewer:
 
@@ -727,63 +725,43 @@ Recommended for production:
 
 ## Validation
 
-Run smoke test:
+File smoke test:
 
 ```bash
 npm run test:smoke
 ```
 
-Run API smoke test after Docker services, seed data, and API are running:
+API smoke test:
 
 ```bash
 npm run test:api
 ```
 
-For screenshot evidence, run both smoke tests in the terminal and capture the output:
+Smoke test screenshot evidence:
 
 ```bash
 npm run test:smoke
 npm run test:api
 ```
 
-Run JavaScript syntax checks:
+JavaScript syntax check:
 
 ```bash
 powershell -Command "Get-ChildItem src,scripts,public -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }"
 ```
 
-Validate Docker Compose:
+Docker Compose validation:
 
 ```bash
 docker compose config
 ```
 
-## Demo Script
-
-Use [docs/demo-script.md](docs/demo-script.md) for the 10-15 minute demonstration.
-
-Demo video:
+## Demo video:
 
 ```text
 https://drive.google.com/drive/folders/1AVTWx4b29AFKXWRLB8Q9Z_kH22AYdd0_?usp=sharing
 ```
 
-1. Start Docker Desktop.
-2. Run `docker compose up -d mongo1 mongo2 mongo3 mongo-init redis`.
-3. Run `npm run seed`.
-4. Run `npm run dev`.
-5. Open `http://localhost:3000`.
-6. Login as `customer1@xyzshop.test`.
-7. Browse products.
-8. Open one product detail page twice.
-9. Show cache behavior changing from miss to hit.
-10. Add a product to the cart.
-11. Place an order.
-12. Explain the MongoDB transaction for stock decrement and order creation.
-13. Show trending products and recently viewed products.
-14. Login as `admin@xyzshop.test`.
-15. Load monthly revenue and low-stock analytics.
-16. Open `report.md` and explain MongoDB/Redis design decisions.
 
 ## Known Gaps
 
