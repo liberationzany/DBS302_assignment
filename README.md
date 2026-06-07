@@ -762,6 +762,12 @@ docker compose config
 
 Use [docs/demo-script.md](docs/demo-script.md) for the 10-15 minute demonstration.
 
+Demo video:
+
+```text
+https://drive.google.com/drive/folders/1AVTWx4b29AFKXWRLB8Q9Z_kH22AYdd0_?usp=sharing
+```
+
 1. Start Docker Desktop.
 2. Run `docker compose up -d mongo1 mongo2 mongo3 mongo-init redis`.
 3. Run `npm run seed`.
