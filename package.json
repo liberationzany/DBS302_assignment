@@ -1,0 +1,35 @@
+{
+  "name": "xyz-shop-data-layer",
+  "version": "1.0.0",
+  "description": "DBS302 production-ready e-commerce backend using MongoDB and Redis.",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed": "node scripts/seed.js",
+    "test:smoke": "node scripts/smoke-test.js"
+  },
+  "keywords": [
+    "mongodb",
+    "redis",
+    "ecommerce",
+    "dbs302"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.3",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
