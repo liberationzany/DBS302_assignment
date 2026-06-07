@@ -6,6 +6,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo1-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mongo2:
     image: mongo:7
@@ -14,6 +19,11 @@ services:
       - "27018:27017"
     volumes:
       - mongo2-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mongo3:
     image: mongo:7
@@ -22,13 +32,21 @@ services:
       - "27019:27017"
     volumes:
       - mongo3-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mongo-init:
     image: mongo:7
     depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
     restart: "no"
     entrypoint: ["bash", "/docker/init-replica.sh"]
     volumes:
@@ -42,20 +60,31 @@ services:
     volumes:
       - ./docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   api:
     image: node:20
     working_dir: /app
     command: sh -c "npm install && npm run dev"
     depends_on:
-      - mongo-init
-      - redis
+      mongo-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     ports:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      MONGODB_URI: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/xyz_shop?replicaSet=rs0
+      REDIS_URL: redis://redis:6379
     volumes:
       - ./:/app
+      - /app/node_modules
 
 volumes:
   mongo1-data:
