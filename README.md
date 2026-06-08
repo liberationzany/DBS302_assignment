@@ -11,6 +11,8 @@ XYZ Shop is an e-commerce platform migrating from a relational database to a pol
 
 The focus of this project is the data layer, not advanced UI design.
 
+System architecture diagram: [docs/system-architecture.md](docs/system-architecture.md)
+
 ## Tech Stack
 
 - Node.js 20

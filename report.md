@@ -28,19 +28,46 @@ The frontend is a simple browser page served by the same Express app. It is used
 ## System Architecture Diagram
 
 ```mermaid
-flowchart LR
-  User[User Browser] --> API[Express Backend API]
-  API --> Mongo[(MongoDB Replica Set)]
-  API --> Redis[(Redis)]
-  Mongo --> Users[Users]
-  Mongo --> Products[Products]
-  Mongo --> Orders[Orders]
-  Redis --> Cache[Product Cache]
-  Redis --> Cart[Cart and Sessions]
-  Redis --> RealTime[Trending, Rate Limits, Visitors]
+flowchart TB
+  User[User / Browser] --> Frontend[Frontend<br/>HTML, CSS, JavaScript]
+  Frontend --> API[Express Backend API]
+
+  API --> Auth[Auth Routes<br/>Register, Login, JWT]
+  API --> ProductRoutes[Product Routes<br/>Catalogue, Search, Cache]
+  API --> CartRoutes[Cart Routes<br/>Cart Items]
+  API --> OrderRoutes[Order Routes<br/>Checkout Transaction]
+  API --> AnalyticsRoutes[Analytics Routes<br/>Reports]
+  API --> CategoryRoutes[Category Routes<br/>Category CRUD]
+  API --> ReviewRoutes[Review Routes<br/>Reviews]
+  API --> UserRoutes[User Routes<br/>Profile, Wishlist]
+
+  Auth --> Mongo[(MongoDB Replica Set)]
+  ProductRoutes --> Mongo
+  OrderRoutes --> Mongo
+  AnalyticsRoutes --> Mongo
+  CategoryRoutes --> Mongo
+  ReviewRoutes --> Mongo
+  UserRoutes --> Mongo
+
+  ProductRoutes --> Redis[(Redis)]
+  CartRoutes --> Redis
+  OrderRoutes --> Redis
+  Auth --> Redis
+
+  Mongo --> M1[mongo1]
+  Mongo --> M2[mongo2]
+  Mongo --> M3[mongo3]
+
+  Mongo --> Collections[Collections<br/>users, categories, products,<br/>inventories, orders, reviews]
+  Redis --> RedisData[Redis Data<br/>cache, sessions, carts,<br/>rate limits, leaderboards,<br/>recently viewed, HyperLogLog]
+
+  MongoExpress[Mongo Express<br/>localhost:8081] --> Mongo
+  RedisCommander[Redis Commander<br/>localhost:8082] --> Redis
 ```
 
 In this design, MongoDB is the main database. If Redis data is lost, the most important business data is still safe in MongoDB.
+
+The frontend and backend are served from the same Express application at `http://localhost:3000`. MongoDB is used for data that must be kept permanently, such as users, products, inventory, and orders. Redis is used for faster temporary data, such as product cache, sessions, carts, rate limits, and real-time lists.
 
 ## Technology Used
 
