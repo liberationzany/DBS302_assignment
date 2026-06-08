@@ -27,6 +27,8 @@ The frontend is a simple browser page served by the same Express app. It is used
 
 ## System Architecture Diagram
 
+![System architecture](screenshots/system-architecture.png)
+
 ```mermaid
 flowchart TB
   User[User / Browser] --> Frontend[Frontend<br/>HTML, CSS, JavaScript]
