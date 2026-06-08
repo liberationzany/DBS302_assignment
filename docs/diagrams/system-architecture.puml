@@ -1,5 +1,5 @@
 @startuml
-title XYZ Shop Professional System Architecture
+title XYZ Shop Implemented System Architecture
 
 skinparam shadowing false
 skinparam componentStyle rectangle
