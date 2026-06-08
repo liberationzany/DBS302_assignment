@@ -1,78 +1,57 @@
 @startuml
-title XYZ Shop System Architecture
+title XYZ Shop Professional System Architecture
 
-skinparam componentStyle rectangle
 skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
 skinparam wrapWidth 180
+skinparam defaultTextAlignment center
 
 actor "User" as user
 
-node "Browser" {
-  component "Frontend\nHTML/CSS/JavaScript" as frontend
+package "Client Layer" {
+  node "Browser" as browser {
+    component "Frontend UI\nHTML / CSS / JavaScript\nlocalhost:3000" as frontend
+  }
 }
 
-node "Node.js / Express API\nlocalhost:3000" {
-  component "Auth Routes\nRegister, Login, JWT" as auth
-  component "Product Routes\nCatalogue, Search, Cache" as products
-  component "Category Routes\nCRUD" as categories
-  component "Cart Routes\nCart Items" as cart
-  component "Order Routes\nCheckout Transaction" as orders
-  component "User Routes\nProfile, Wishlist" as users
-  component "Review Routes\nProduct Reviews" as reviews
-  component "Analytics Routes\nRevenue, Stock Reports" as analytics
-  component "Services\nRedis, Orders, Analytics" as services
+package "Application Layer" {
+  node "Node.js / Express API\nlocalhost:3000" as api {
+    component "Middleware\nJWT Auth\nRole-Based Access\nRate Limit\nHelmet\nLogging" as middleware
+    component "API Routes\nAuth\nProducts\nCategories\nCart\nOrders\nUsers\nReviews\nAnalytics" as routes
+    component "Service Layer\nOrder Transaction\nRedis Operations\nAnalytics Pipelines" as services
+  }
 }
 
-database "MongoDB Replica Set\nrs0" as mongo {
-  component "mongo1" as mongo1
-  component "mongo2" as mongo2
-  component "mongo3" as mongo3
+package "Data Layer" {
+  database "MongoDB Replica Set\nrs0" as mongo
+  node "mongo1" as mongo1
+  node "mongo2" as mongo2
+  node "mongo3" as mongo3
+
+  database "MongoDB Collections\nusers\ncategories\nproducts\ninventories\norders\nreviews" as collections
+
+  database "Redis\nPassword Protected\nlocalhost:6379" as redis
+  database "Redis Data\nProduct Cache\nSessions\nCarts\nRate Limits\nLeaderboards\nRecently Viewed\nHyperLogLog" as redisData
 }
 
-database "MongoDB Collections" as collections {
-  component "users"
-  component "categories"
-  component "products"
-  component "inventories"
-  component "orders"
-  component "reviews"
+package "Database Inspection Tools" {
+  component "Mongo Express\nlocalhost:8081" as mongoExpress
+  component "Redis Commander\nlocalhost:8082" as redisCommander
 }
-
-database "Redis\nlocalhost:6379" as redis {
-  component "Product Cache"
-  component "Sessions"
-  component "Carts"
-  component "Rate Limits"
-  component "Leaderboards"
-  component "Recently Viewed"
-  component "HyperLogLog Visitors"
-}
-
-component "Mongo Express\nlocalhost:8081" as mongoExpress
-component "Redis Commander\nlocalhost:8082" as redisCommander
 
 user --> frontend
-frontend --> auth
-frontend --> products
-frontend --> categories
-frontend --> cart
-frontend --> orders
-frontend --> users
-frontend --> reviews
-frontend --> analytics
-
-auth --> services
-products --> services
-categories --> services
-cart --> services
-orders --> services
-users --> services
-reviews --> services
-analytics --> services
-
-services --> mongo
-services --> redis
+frontend --> api : HTTP requests
+api --> middleware
+middleware --> routes
+routes --> services
+services --> mongo : durable data
+services --> redis : cache and real-time data
+mongo --> mongo1
+mongo --> mongo2
+mongo --> mongo3
 mongo --> collections
+redis --> redisData
 mongoExpress --> mongo
 redisCommander --> redis
 
