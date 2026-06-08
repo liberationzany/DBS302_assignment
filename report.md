@@ -466,22 +466,55 @@ http://localhost:3000
 
 ## Screenshots
 
-Screenshots are included in the `screenshots/` folder:
+### Home Page And Login
 
-- `01-home-login.png`
-- `02-product-listing.png`
-- `03-cache-miss.png`
-- `04-cache-hit.png`
-- `05-cart.png`
-- `06-order-placement.png`
-- `07-realtime-features.png`
-- `08-admin-analytics.png`
+![Home page and login](screenshots/01-home-login.png)
 
-Extra database evidence screenshots are also included:
+### Product Listing
 
-- `mongo-collections.png`, showing the six MongoDB collections
-- `redis-keys.png`, showing Redis keys for cache, sessions, rate limits, leaderboards, recently viewed products, and unique visitors
-- `smoke-tests.png`, showing the file smoke test and API smoke test passing
+![Product listing](screenshots/02-product-listing.png)
+
+### Product Detail Cache Miss
+
+![Product detail cache miss](screenshots/03-cache-miss.png)
+
+### Product Detail Cache Hit
+
+![Product detail cache hit](screenshots/04-cache-hit.png)
+
+### Redis Cart
+
+![Redis cart](screenshots/05-cart.png)
+
+### Successful Order Placement
+
+![Order placement](screenshots/06-order-placement.png)
+
+### Trending Products And Recently Viewed
+
+![Real-time Redis features](screenshots/07-realtime-features.png)
+
+### Admin Analytics
+
+![Admin analytics](screenshots/08-admin-analytics.png)
+
+### MongoDB Collections
+
+This screenshot shows the six MongoDB collections used in the project.
+
+![MongoDB collections](screenshots/mongo-collections.png)
+
+### Redis Keys
+
+This screenshot shows Redis keys for cache, sessions, rate limits, leaderboards, recently viewed products, and unique visitors.
+
+![Redis keys](screenshots/redis-keys.png)
+
+### Smoke Tests
+
+This screenshot shows the file smoke test and API smoke test passing.
+
+![Smoke tests](screenshots/smoke-tests.png)
 
 ## Demonstration Steps
 
