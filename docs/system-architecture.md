@@ -1,5 +1,10 @@
 # System Architecture
 
+Diagram files:
+
+- Excalidraw: [diagrams/system-architecture.excalidraw](diagrams/system-architecture.excalidraw)
+- PlantUML: [diagrams/system-architecture.puml](diagrams/system-architecture.puml)
+
 ```mermaid
 flowchart TB
   User[User / Browser] --> Frontend[Frontend<br/>HTML, CSS, JavaScript]

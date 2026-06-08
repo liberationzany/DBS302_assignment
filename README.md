@@ -11,7 +11,9 @@ XYZ Shop is an e-commerce platform migrating from a relational database to a pol
 
 The focus of this project is the data layer, not advanced UI design.
 
-System architecture diagram: [docs/system-architecture.md](docs/system-architecture.md)
+System architecture diagram: [docs/system-architecture.md](docs/system-architecture.md)  
+Excalidraw diagram: [docs/diagrams/system-architecture.excalidraw](docs/diagrams/system-architecture.excalidraw)  
+PlantUML diagram: [docs/diagrams/system-architecture.puml](docs/diagrams/system-architecture.puml)
 
 ## Tech Stack
 
