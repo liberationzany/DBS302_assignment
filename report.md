@@ -7,7 +7,7 @@ Assignment: Designing a Production-Ready E-Commerce Backend with MongoDB and Red
 Project Name: XYZ Shop Data Layer  
 Student Name: Sonam Tenzin  
 Student Number: 0223030  
-Student Work: Backend source code, README, technical report, screenshots, and demo
+Student Work: Backend source code, README, technical report, screenshots, and demo  
 
 ## Abstract
 
@@ -492,6 +492,70 @@ The frontend is available at:
 ```text
 http://localhost:3000
 ```
+
+## API Endpoint Summary
+
+The backend exposes API routes for the main e-commerce workflows.
+
+Authentication:
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+Products:
+
+- `GET /api/products`
+- `GET /api/products/:id`
+- `POST /api/products`
+- `PATCH /api/products/:id`
+- `DELETE /api/products/:id`
+- `GET /api/products/trending`
+- `GET /api/products/recently-viewed`
+
+Categories:
+
+- `GET /api/categories`
+- `GET /api/categories/:id`
+- `POST /api/categories`
+- `PATCH /api/categories/:id`
+- `DELETE /api/categories/:id`
+
+Profile and wishlist:
+
+- `GET /api/users/me`
+- `PATCH /api/users/me`
+- `GET /api/users/me/wishlist`
+- `PUT /api/users/me/wishlist/:productId`
+- `DELETE /api/users/me/wishlist/:productId`
+
+Reviews:
+
+- `GET /api/products/:productId/reviews`
+- `POST /api/products/:productId/reviews`
+- `PATCH /api/reviews/:id`
+- `DELETE /api/reviews/:id`
+- `GET /api/reviews`
+
+Cart:
+
+- `GET /api/cart`
+- `PUT /api/cart/items/:productId`
+- `DELETE /api/cart/items/:productId`
+- `DELETE /api/cart`
+
+Orders:
+
+- `POST /api/orders`
+- `GET /api/orders`
+- `PATCH /api/orders/:id/status`
+
+Analytics:
+
+- `GET /api/analytics/monthly-revenue`
+- `GET /api/analytics/product-purchases`
+- `GET /api/analytics/low-stock`
+- `GET /api/analytics/unique-visitors/:date`
+- `GET /api/analytics/redis-info`
 
 ## Screenshots
 
